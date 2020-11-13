@@ -13,19 +13,20 @@ defmodule Firmware.Interface do
 
     {:ok, led} = Circuits.GPIO.open(5, :output)
 
-    {:ok, %{open: :closed, button: button, led: led, timestamp: 0}}
+    {:ok, %{open: false, button: button, led: led, timestamp: 0}}
   end
 
   @impl
-  def handle_info({:circuits_gpio, _pin, timestamp, 0}, data) do
+  def handle_info({:circuits_gpio, _pin, _event_time, 0}, data) do
     newstate = case data.open do
-                 :open ->
+                 true ->
                    Circuits.GPIO.write(data.led, 0)
-                   :closed
-                 :closed ->
+                   false
+                 false ->
                    Circuits.GPIO.write(data.led, 1)
-                   :open
+                   true
     end
+    timestamp = DateTime.utc_now() |> DateTime.to_unix()
     {:noreply, %{data | open: newstate, timestamp: timestamp}}
   end
 

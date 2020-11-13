@@ -9,10 +9,7 @@ defmodule WebappWeb.PageController do
   def spaceapi(conn, _params) do
     res = GenServer.call({:global, :door_interface}, :read_state)
 
-    open = case res.open do
-             :open -> true
-             :closed -> false
-           end
+    open = res.open
     time = res.timestamp
 
     json(conn,
